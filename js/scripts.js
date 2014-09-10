@@ -1,9 +1,56 @@
-	jQuery(function($) {
+var costCalculator = {};
+
+costCalculator.renderCost = function() {
+	if (this.selector === null || this.selector === "undefined") {
+		console.error("No selector defined for deficit calculator.");
+		return;
+	}
+
+	if (this.cost === null || this.cost === "undefined") {
+		console.error("No cost defined for deficit calculator.");
+		return;
+	}
+
+	$(this.selector).text(this.cost);
+};
+
+costCalculator.init = function(settings) {
+	if (settings === null || settings === "undefined") {
+		console.log("No settings passed to deficit init. Assuming reasonable values.");
+
+		settings = {};
+		settings.cost = 0;
+		settings.selector = "#deficit";
+	}
+
+	this.cost = typeof settings.value !== "undefined" ? settings.value : 1000;
+	this.selector = typeof settings.selector !== "undefined" ? settings.selector : null;
+	this.renderCost();
+};
+
+costCalculator.updateCost = function(_cost) {
+	if (_cost === null || _cost === "undefined") {
+		console.error("No cost passed to deficit update. The list items is probably missing a data-cost attribute.");
+		return;
+	}
+
+	if (this.cost === null || this.cost === "undefined") {
+		console.log("Deficit calculator had no defined cost, assuming zero.");
+		this.cost = 0;
+	}
+
+	this.cost += parseFloat(_cost);
+	this.renderCost();
+};
+
+jQuery(function($) {
 		var cats=[ "Energy", "Healthcare", "Transportation", "Immigration", "Education", "HST" ];
 		
 		var length = cats.length,
 			element = null,
 			list = null;
+
+		costCalculator.init({ starting: 999, selector: "#deficit" });
 
 		// Animation duration
 		var duration = 200; // milliseconds	
@@ -63,10 +110,19 @@
 			var list = node.closest("ul");
 			var targetList = null;
 
+			var cost = node.attr("data-cost");
+			if (typeof cost === "undefined") {
+				console.log("List item is missing data-cost attribute, assuming zero.");
+				cost = 0;
+			}
+
 			// Set targetList to the list we're going to move node to.
 			if (list.attr("id") === "Selected") {
 				// If the current item is selected move it to its starting list.
 				targetList = node.attr("data-list");
+
+				// Invert cost because we're removing from list.
+				cost *= -1;
 			}
 			else if (list.attr("id") !== "Selected") {
 				// If the current item is not selected move it to the selected list.
@@ -92,11 +148,9 @@
 					});
 				}
 			});
-			
-			// TODO: Update the deficit calculator.
-			var cost = node.attr("data-cost");
 
-			//debugger;
+			// Update cost in DOM.
+			costCalculator.updateCost(cost);
 		});
 		
 		$("#Interactive h3").bind("click", function() {
