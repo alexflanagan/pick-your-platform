@@ -1,6 +1,6 @@
-var costCalculator = {};
+window.costCalculator = {};
 
-costCalculator.renderCost = function() {
+window.costCalculator.renderCost = function() {
 	if (this.selector === null || this.selector === "undefined") {
 		console.error("No selector defined for deficit calculator.");
 		return;
@@ -14,21 +14,27 @@ costCalculator.renderCost = function() {
 	$(this.selector).text(this.cost);
 };
 
-costCalculator.init = function(settings) {
+window.costCalculator.resetCost = function() {
+	this.cost = this.setPoint;
+	this.renderCost();
+}
+
+window.costCalculator.initCost = function(settings) {
 	if (settings === null || settings === "undefined") {
-		console.log("No settings passed to deficit init. Assuming reasonable values.");
+		console.log("No settings passed to deficit initCost. Assuming reasonable values.");
 
 		settings = {};
 		settings.starting = 0;
 		settings.selector = "#deficit";
 	}
 
-	this.cost 		= typeof settings.starting !== "undefined" ? settings.starting : 1000;
+	this.cost		= typeof settings.starting !== "undefined" ? settings.starting : 1000;
 	this.selector	= typeof settings.selector !== "undefined" ? settings.selector : null;
+	this.setPoint	= this.cost;
 	this.renderCost();
 };
 
-costCalculator.updateCost = function(_cost) {
+window.costCalculator.updateCost = function(_cost) {
 	if (_cost === null || _cost === "undefined") {
 		console.error("No cost passed to deficit update. The list items is probably missing a data-cost attribute.");
 		return;
@@ -39,6 +45,12 @@ costCalculator.updateCost = function(_cost) {
 		this.cost = 0;
 	}
 
-	this.cost += parseFloat(_cost);
+	var delta = parseFloat(_cost);
+	if (isNaN(delta)) {
+		console.error("Unable to convert _cost to Number. Assuming zero and continuing.");
+		delta = 0;
+	}
+
+	this.cost += delta;
 	this.renderCost();
 };

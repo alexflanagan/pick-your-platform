@@ -1,98 +1,95 @@
-	jQuery(function($) {
-	
-	costCalculator.init({
-    starting: 0, // starting deficit
-    selector: "#deficit" // container for display
-});
-	
-	
-		var cats=[ "Energy", "Healthcare", "Transportation", "Immigration", "Education", "HST" ];
-		
-		var length = cats.length,
-			element = null;
-		for (var i = 0; i < length; i++) {
-		  element = cats[i];
-		  var list = document.getElementById(element);
-		  DragDrop.makeListContainer( list );
+'use strict';
 
-		  list.onDragOver = function() { 
-		  /*
-			  this.style["width"] = "200px";
-			  this.style["height"] = "200px";
-		  	  this.style["background"] = "#999"; 
-			 */
-		  };
+var costCalculator = window.costCalculator;
+if (typeof costCalculator === null || typeof costCalculator === 'undefined') {
+	console.error("window.costCalculator not defined.");
+}
 
-		  list.onDragOut = function() { 
-		  	//this.style["background"] = "none"; 
-		  };
-		}
-		
-		//var list = document.getElementById("Options");
-		//DragDrop.makeListContainer( list );
-		
-		list = document.getElementById("Selected");
-		DragDrop.makeListContainer( list );
-		list.onDragOver = function() { 
-			this.style["border"] = "1px dashed #AAA"; 
-		};
-		//list.onDragOut = function() {this.style["border"] = "1px solid white"; };
+jQuery(function($) {
+	costCalculator.initCost({
+	    starting: 0, // starting deficit
+	    selector: "#deficit" // container for display
+	});
+	
+	var cats=[ "Energy", "Healthcare", "Transportation", "Immigration", "Education", "HST" ];
+	
+	var length = cats.length,
+		element = null;
+	for (var i = 0; i < length; i++) {
+	  element = cats[i];
+	  var list = document.getElementById(element);
+	  DragDrop.makeListContainer( list );
 
-		$("#Submit, #Sumbit2").bind("click", function() {
-			$("#Selected li").each(function(e) {
-				$(this).addClass($(this).attr("data-party"));
-			});
-			
-			AddParties();
-			return false;
+	  list.onDragOver = function() { 
+	  /*
+		  this.style["width"] = "200px";
+		  this.style["height"] = "200px";
+	  	  this.style["background"] = "#999"; 
+		 */
+	  };
+
+	  list.onDragOut = function() { 
+	  	//this.style["background"] = "none"; 
+	  };
+	}
+	
+	//var list = document.getElementById("Options");
+	//DragDrop.makeListContainer( list );
+	
+	list = document.getElementById("Selected");
+	DragDrop.makeListContainer( list );
+	list.onDragOver = function() { 
+		this.style["border"] = "1px dashed #AAA"; 
+	};
+	//list.onDragOut = function() {this.style["border"] = "1px solid white"; };
+
+	$("#Submit1, #Submit2").bind("click", function() {
+		costCalculator.resetCost();
+
+		$("#Selected li").each(function(e) {
+			$(this).addClass($(this).attr("data-party"));
+			costCalculator.updateCost($(this).attr("data-cost"));
 		});
 		
-		
-		$("#Interactive h3").bind("click", function() {
+		AddParties();
+		costCalculator.renderCost();
+		return false;
+	});
+	
+	
+$("#Interactive h3").bind("click", function() {
 
-		
-		
-		if ( $( this ).next("ul").hasClass( "active" ) ) {
+	if ( $( this ).next("ul").hasClass( "active" ) ) {
 		$( this ).next("ul").removeClass( "active" );
-	
-
+	} else {
+		$("*").removeClass("active");
 	}
-else
-$("*").removeClass("active");
-			  $( this ).next("ul").addClass( "active" );
-			
 
-  
-	});
+	$( this ).next("ul").addClass( "active" );
+});
+
+	function AddParties() {
+			$("#Total_NDP em").text($("#Selected .NDP").length);
+			$("#Total_GRN em").text($("#Selected .GRN").length);
+			$("#Total_LIB em").text($("#Selected .LIB").length);
+			$("#Total_CON em").text($("#Selected .CON").length);
+			$("#Total_PA em").text($("#Selected .PA").length);
+	}
 	
+	function updateHeights() {
+		var min_heights=$("#Draggable").height()-100;
+		$("#Interactive .scroller ul.boxy").css({
+			minHeight:min_heights-240
+		});
+
+		$("#Interactive .scroller ul.boxier").css({
+			minHeight:min_heights-240
+		});
+	}
 	
-
-
-		
-		
-		function AddParties() {
-				$("#Total_NDP em").text($("#Selected .NDP").length);
-				$("#Total_GRN em").text($("#Selected .GRN").length);
-				$("#Total_LIB em").text($("#Selected .LIB").length);
-				$("#Total_CON em").text($("#Selected .CON").length);
-				$("#Total_PA em").text($("#Selected .PA").length);
-		}
-		
-		function updateHeights() {
-			var min_heights=$("#Draggable").height()-100;
-			$("#Interactive .scroller ul.boxy").css({
-				minHeight:min_heights-240
-			});
-
-			$("#Interactive .scroller ul.boxier").css({
-				minHeight:min_heights-240
-			});
-		}
-		
-		simulateTouchEvents("ul.sortable");
-		
-	});
-
+	simulateTouchEvents("ul.sortable");
+	
+});
 
 function simulateTouchEvents(oo,bIgnoreChilds)
 {
