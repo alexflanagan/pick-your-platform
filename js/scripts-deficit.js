@@ -664,8 +664,17 @@ var DragDrop = {
 	},
 
 	onDragEnd : function(nwPosition, sePosition, nwOffset, seOffset) {
+		var costDelta = $(this).attr('data-cost');
+		if ($(this).parent().attr('id') !== 'Selected') {
+			costDelta = '-' + costDelta;
+		}
+
+		costCalculator.updateCost(costDelta);
+		costCalculator.renderCost();
+
 		// if the drag ends and we're still outside all containers
 		// it's time to remove ourselves from the document
+		// TODO: Actually we probably shouldn't. This is likely a bug.
 		if (this.isOutside) {
 			var tempParent = this.parentNode;
 			this.parentNode.removeChild( this );
