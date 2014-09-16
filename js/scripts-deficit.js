@@ -1,14 +1,15 @@
-'use strict';
-
-var costCalculator = window.costCalculator;
-if (typeof costCalculator === null || typeof costCalculator === 'undefined') {
-	console.error("window.costCalculator not defined.");
-}
-
 jQuery(function($) {
+	'use strict';
+
+	var costCalculator = window.costCalculator;
+	if (typeof costCalculator === null || typeof costCalculator === 'undefined') {
+		console.error("window.costCalculator not defined.");
+	}
+
 	costCalculator.initCost({
-	    starting: 0, // starting deficit
-	    selector: "#deficit" // container for display
+	    starting: 999,			// starting deficit
+	    selector: "#deficit",	// container for deficit display
+	    total: "#totalCost"		// container for †otal cost
 	});
 	
 	var cats=[ "Energy", "Healthcare", "Transportation", "Immigration", "Education", "HST" ];
@@ -55,25 +56,24 @@ jQuery(function($) {
 		costCalculator.renderCost();
 		return false;
 	});
-	
-	
-$("#Interactive h3").bind("click", function() {
 
-	if ( $( this ).next("ul").hasClass( "active" ) ) {
-		$( this ).next("ul").removeClass( "active" );
-	} else {
-		$("*").removeClass("active");
-	}
+	$("#Interactive h3").bind("click", function() {
 
-	$( this ).next("ul").addClass( "active" );
-});
+		if ( $( this ).next("ul").hasClass( "active" ) ) {
+			$( this ).next("ul").removeClass( "active" );
+		} else {
+			$("*").removeClass("active");
+		}
+
+		$( this ).next("ul").addClass( "active" );
+	});
 
 	function AddParties() {
-			$("#Total_NDP em").text($("#Selected .NDP").length);
-			$("#Total_GRN em").text($("#Selected .GRN").length);
-			$("#Total_LIB em").text($("#Selected .LIB").length);
-			$("#Total_CON em").text($("#Selected .CON").length);
-			$("#Total_PA em").text($("#Selected .PA").length);
+		$("#Total_NDP em").text($("#Selected .NDP").length);
+		$("#Total_GRN em").text($("#Selected .GRN").length);
+		$("#Total_LIB em").text($("#Selected .LIB").length);
+		$("#Total_CON em").text($("#Selected .CON").length);
+		$("#Total_PA em").text($("#Selected .PA").length);
 	}
 	
 	function updateHeights() {
@@ -664,23 +664,40 @@ var DragDrop = {
 	},
 
 	onDragEnd : function(nwPosition, sePosition, nwOffset, seOffset) {
-		var costDelta = $(this).attr('data-cost');
-		if ($(this).parent().attr('id') !== 'Selected') {
-			costDelta = '-' + costDelta;
-		}
+		if (!this.isOutside) {
+			var costDelta = $(this).attr('data-cost');
+			costDelta = parseFloat(costDelta);
+			if (isNaN(costDelta)) {
+				console.error("Unable to convert costDelta to Number. Assuming zero and continuing.");
+				costDelta = 0;
+			}
 
-		costCalculator.updateCost(costDelta);
-		costCalculator.renderCost();
+			if ($(this).parent().attr('id') !== 'Selected') {
+				// Invert the cost.
+				costDelta *= -1;
+			}
+
+			costCalculator.updateCost(costDelta);
+			costCalculator.renderCost();
+		} else {
+			console.error("Dragged item out of panels -- cost invalidated!");
+			costCalculator.resetCost();
+		}
 
 		// if the drag ends and we're still outside all containers
 		// it's time to remove ourselves from the document
 		// TODO: Actually we probably shouldn't. This is likely a bug.
 		if (this.isOutside) {
+
 			var tempParent = this.parentNode;
 			this.parentNode.removeChild( this );
 			tempParent.parentNode.removeChild( tempParent );
+
+			// Let's just snap to a reasonable place.
+			//$(this).parent().append(this);			
 			return;
 		}
+
 		this.parentNode.onDragOut();
 		this.style["top"] = "0px";
 		this.style["left"] = "0px";

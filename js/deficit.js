@@ -1,23 +1,34 @@
 window.costCalculator = {};
 
 window.costCalculator.renderCost = function() {
-	if (this.selector === null || this.selector === "undefined") {
-		console.error("No selector defined for deficit calculator.");
+	if (this.selector === null || this.selector === 'undefined') {
+		console.error('No selector defined for deficit calculator.');
 		return;
 	}
 
-	if (this.cost === null || this.cost === "undefined") {
-		console.error("No cost defined for deficit calculator.");
+	if (this.total === null || this.total === 'undefined') {
+		console.error('No selector defined for total cost.');
+		return;
+	}
+
+	if (this.setPoint === null || this.setPoint === 'undefined') {
+		console.error('No setPoint defined for deficit calculator.');
+		return;
+	}
+
+	if (this.cost === null || this.cost === 'undefined') {
+		console.error('No cost defined for deficit calculator.');
 		return;
 	}
 
 	$(this.selector).text(this.cost);
+	$(this.total).text(this.setPoint - this.cost);
 };
 
 window.costCalculator.resetCost = function() {
 	this.cost = this.setPoint;
 	this.renderCost();
-}
+};
 
 window.costCalculator.initCost = function(settings) {
 	if (settings === null || settings === "undefined") {
@@ -26,10 +37,12 @@ window.costCalculator.initCost = function(settings) {
 		settings = {};
 		settings.starting = 0;
 		settings.selector = "#deficit";
+		settings.total = "#totalCost";
 	}
 
-	this.cost		= typeof settings.starting !== "undefined" ? settings.starting : 1000;
-	this.selector	= typeof settings.selector !== "undefined" ? settings.selector : null;
+	this.cost		= typeof settings.starting	!== "undefined" ? settings.starting : 1000;
+	this.selector	= typeof settings.selector	!== "undefined" ? settings.selector : null;
+	this.total		= typeof settings.total		!== "undefined" ? settings.total	: null;
 	this.setPoint	= this.cost;
 	this.renderCost();
 };
@@ -41,7 +54,7 @@ window.costCalculator.updateCost = function(_cost) {
 	}
 
 	if (this.cost === null || this.cost === "undefined") {
-		console.log("Deficit calculator had no defined cost, assuming zero.");
+		console.error("Deficit calculator had no defined cost, assuming zero.");
 		this.cost = 0;
 	}
 
