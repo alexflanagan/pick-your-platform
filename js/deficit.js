@@ -21,8 +21,9 @@ window.costCalculator.renderCost = function() {
 		return;
 	}
 
-	$(this.selector).text(this.cost);
-	$(this.total).text(this.setPoint - this.cost);
+	// Deficits are displayed as negatives.
+	$(this.selector).text(-this.cost);
+	$(this.total).text(this.cost - this.setPoint);
 };
 
 window.costCalculator.resetCost = function() {
@@ -40,11 +41,11 @@ window.costCalculator.initCost = function(settings) {
 		settings.total = "#totalCost";
 	}
 
-	this.cost		= typeof settings.starting	!== "undefined" ? settings.starting : 1000;
+	this.setPoint	= typeof settings.starting	!== "undefined" ? settings.starting : 1000;
 	this.selector	= typeof settings.selector	!== "undefined" ? settings.selector : null;
 	this.total		= typeof settings.total		!== "undefined" ? settings.total	: null;
-	this.setPoint	= this.cost;
-	this.renderCost();
+	
+	this.resetCost();
 };
 
 window.costCalculator.updateCost = function(_cost) {
